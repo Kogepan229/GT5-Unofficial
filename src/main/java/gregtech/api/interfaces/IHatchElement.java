@@ -71,7 +71,7 @@ public interface IHatchElement<T> {
     }
 
     default <T2 extends T> IStructureElement<T2> newAnyOrCasing(int aCasingIndex, int aDot, Block casingBlock,
-                                                                int casingMeta) {
+        int casingMeta) {
         if (aCasingIndex < 0 || aDot < 0) throw new IllegalArgumentException();
         return GT_StructureUtility.<T2>buildHatchAdder()
             .anyOf(this)
