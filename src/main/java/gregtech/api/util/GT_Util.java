@@ -1,10 +1,8 @@
 package gregtech.api.util;
 
-
 import static gregtech.api.util.GT_Utility.filterValidMTEs;
 
 import java.util.List;
-
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -216,7 +214,7 @@ public class GT_Util {
     }
 
     public static boolean saveMultiblockInputConfiguration(GT_MetaTileEntity_MultiBlockBase controller,
-                                                           EntityPlayer player) {
+        EntityPlayer player) {
         NBTTagCompound newTag = new NBTTagCompound();
         ItemStack dataOrb = player.getHeldItem();
         if (GT_Utility.isStackInvalid(dataOrb) || !ItemList.Tool_DataOrb.isStackEqual(dataOrb, false, true)) {
@@ -252,12 +250,12 @@ public class GT_Util {
         return !GT_Utility.isStackInvalid(dataOrb) && ItemList.Tool_DataOrb.isStackEqual(dataOrb, false, true)
             && dataOrb.getTagCompound() != null
             && "MultiblockConfiguration".equals(
-            dataOrb.getTagCompound()
-                .getString("type"));
+                dataOrb.getTagCompound()
+                    .getString("type"));
     }
 
     public static boolean loadMultiblockInputConfiguration(GT_MetaTileEntity_MultiBlockBase controller,
-                                                           EntityPlayer player) {
+        EntityPlayer player) {
         ItemStack dataOrb = player.getHeldItem();
         if (!hasMultiblockInputConfiguration(dataOrb)) {
             return false;
@@ -271,13 +269,13 @@ public class GT_Util {
             player,
             controller.mInputBusses)
             || !checkCanLoadConfigurationFromDataStick(
-            tag.getTagList("mInputHatches", Constants.NBT.TAG_COMPOUND),
-            player,
-            controller.mInputHatches)
+                tag.getTagList("mInputHatches", Constants.NBT.TAG_COMPOUND),
+                player,
+                controller.mInputHatches)
             || !checkCanLoadConfigurationFromDataStick(
-            tag.getTagList("mOutputBusses", Constants.NBT.TAG_COMPOUND),
-            player,
-            controller.mOutputBusses))
+                tag.getTagList("mOutputBusses", Constants.NBT.TAG_COMPOUND),
+                player,
+                controller.mOutputBusses))
             return false;
 
         if (!loadConfigurationFromDataStick(
@@ -296,7 +294,7 @@ public class GT_Util {
     }
 
     private static NBTTagList saveConfigurationToDataStick(EntityPlayer player,
-                                                           List<? extends GT_MetaTileEntity_Hatch> hatches) {
+        List<? extends GT_MetaTileEntity_Hatch> hatches) {
         NBTTagList list = new NBTTagList();
         for (GT_MetaTileEntity_Hatch tHatch : filterValidMTEs(hatches)) {
             if (!(tHatch instanceof IDataCopyable copyable)) {
@@ -311,7 +309,7 @@ public class GT_Util {
     }
 
     private static boolean loadConfigurationFromDataStick(NBTTagList list, EntityPlayer player,
-                                                          List<? extends GT_MetaTileEntity_Hatch> hatches) {
+        List<? extends GT_MetaTileEntity_Hatch> hatches) {
         if (list == null || list.tagCount() == 0) return false;
         List<? extends GT_MetaTileEntity_Hatch> validMTEs = filterValidMTEs(hatches);
         int end = Math.min(validMTEs.size(), list.tagCount());
@@ -329,7 +327,7 @@ public class GT_Util {
     }
 
     private static boolean checkCanLoadConfigurationFromDataStick(NBTTagList list, EntityPlayer player,
-                                                                  List<? extends GT_MetaTileEntity_Hatch> hatches) {
+        List<? extends GT_MetaTileEntity_Hatch> hatches) {
         if (list == null || list.tagCount() == 0) return false;
         List<? extends GT_MetaTileEntity_Hatch> validMTEs = filterValidMTEs(hatches);
         int end = Math.min(validMTEs.size(), list.tagCount());
