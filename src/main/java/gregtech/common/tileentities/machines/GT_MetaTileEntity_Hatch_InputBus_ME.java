@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import gregtech.api.interfaces.IDataCopyable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -78,9 +79,10 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 
 public class GT_MetaTileEntity_Hatch_InputBus_ME extends GT_MetaTileEntity_Hatch_InputBus implements
-    IConfigurationCircuitSupport, IRecipeProcessingAwareHatch, IAddGregtechLogo, IAddUIWidgets, IPowerChannelState {
+    IConfigurationCircuitSupport, IRecipeProcessingAwareHatch, IAddGregtechLogo, IAddUIWidgets, IPowerChannelState, IDataCopyable {
 
     private static final int SLOT_COUNT = 16;
+    public static final String COPIED_DATA_IDENTIFIER = "stockingBus";
     private BaseActionSource requestSource = null;
     private @Nullable AENetworkProxy gridProxy = null;
     private final ItemStack[] shadowInventory = new ItemStack[SLOT_COUNT];
@@ -308,12 +310,35 @@ public class GT_MetaTileEntity_Hatch_InputBus_ME extends GT_MetaTileEntity_Hatch
         ItemStack dataStick = aPlayer.inventory.getCurrentItem();
         if (!ItemList.Tool_DataStick.isStackEqual(dataStick, false, true))
             return super.onRightclick(aBaseMetaTileEntity, aPlayer, side, aX, aY, aZ);
-        if (!dataStick.hasTagCompound() || !"stockingBus".equals(dataStick.stackTagCompound.getString("type")))
-            return false;
 
-        NBTTagCompound nbt = dataStick.stackTagCompound;
+        if (!pasteCopiedData(aPlayer, dataStick.stackTagCompound)) return false;
 
-        ItemStack circuit = GT_Utility.loadItem(dataStick.stackTagCompound, "circuit");
+        updateValidGridProxySides();
+        aPlayer.addChatMessage(new ChatComponentTranslation("GT5U.machines.stocking_bus.loaded"));
+        return true;
+    }
+
+    @Override
+    public void onLeftclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
+        if (!(aPlayer instanceof EntityPlayerMP)) return;
+
+        ItemStack dataStick = aPlayer.inventory.getCurrentItem();
+        if (!ItemList.Tool_DataStick.isStackEqual(dataStick, false, true)) return;
+
+        dataStick.stackTagCompound = getCopiedData(aPlayer);
+        dataStick.setStackDisplayName("Stocking Input Bus Configuration");
+        aPlayer.addChatMessage(new ChatComponentTranslation("GT5U.machines.stocking_bus.saved"));
+    }
+
+    @Override
+    public String getCopiedDataIdentifier(EntityPlayer player) {
+        return COPIED_DATA_IDENTIFIER;
+    }
+
+    @Override
+    public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound nbt) {
+        if (nbt == null || !COPIED_DATA_IDENTIFIER.equals(nbt.getString("type"))) return false;
+        ItemStack circuit = GT_Utility.loadItem(nbt, "circuit");
         if (GT_Utility.isStackInvalid(circuit)) circuit = null;
 
         if (autoPullAvailable) {
@@ -334,20 +359,13 @@ public class GT_MetaTileEntity_Hatch_InputBus_ME extends GT_MetaTileEntity_Hatch
             }
         }
         setInventorySlotContents(getCircuitSlot(), circuit);
-        updateValidGridProxySides();
-        aPlayer.addChatMessage(new ChatComponentTranslation("GT5U.machines.stocking_bus.loaded"));
         return true;
     }
 
     @Override
-    public void onLeftclick(IGregTechTileEntity aBaseMetaTileEntity, EntityPlayer aPlayer) {
-        if (!(aPlayer instanceof EntityPlayerMP)) return;
-
-        ItemStack dataStick = aPlayer.inventory.getCurrentItem();
-        if (!ItemList.Tool_DataStick.isStackEqual(dataStick, false, true)) return;
-
+    public NBTTagCompound getCopiedData(EntityPlayer player) {
         NBTTagCompound tag = new NBTTagCompound();
-        tag.setString("type", "stockingBus");
+        tag.setString("type", COPIED_DATA_IDENTIFIER);
         tag.setBoolean("autoPull", autoPullItemList);
         tag.setInteger("minStackSize", minAutoPullStackSize);
         tag.setInteger("refreshTime", autoPullRefreshTime);
@@ -362,9 +380,7 @@ public class GT_MetaTileEntity_Hatch_InputBus_ME extends GT_MetaTileEntity_Hatch
             }
             tag.setTag("itemsToStock", stockingItems);
         }
-        dataStick.stackTagCompound = tag;
-        dataStick.setStackDisplayName("Stocking Input Bus Configuration");
-        aPlayer.addChatMessage(new ChatComponentTranslation("GT5U.machines.stocking_bus.saved"));
+        return tag;
     }
 
     private int getManualSlot() {
