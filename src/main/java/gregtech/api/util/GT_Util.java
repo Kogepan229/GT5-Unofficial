@@ -2,6 +2,7 @@ package gregtech.api.util;
 
 import static gregtech.api.util.GT_Utility.filterValidMTEs;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -24,6 +25,7 @@ import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Hatch;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_MultiBlockBase;
 import gregtech.api.multitileentity.interfaces.IMultiTileEntity;
 import gregtech.common.items.behaviors.Behaviour_DataOrb;
+import gregtech.common.tileentities.machines.IDualInputHatch;
 
 public class GT_Util {
 
@@ -237,9 +239,21 @@ public class GT_Util {
         if (list == null) return false;
         newTag.setTag("mOutputBusses", list);
         count += list.tagCount();
+
+        // For Crafting Input Proxy
+        ArrayList<GT_MetaTileEntity_Hatch> dualInputHatches = new ArrayList<>();
+        for (IDualInputHatch dualInputHatch : controller.mDualInputHatches) {
+            if (dualInputHatch instanceof GT_MetaTileEntity_Hatch hatch) {
+                dualInputHatches.add(hatch);
+            }
+        }
+        list = saveConfigurationToDataStick(player, dualInputHatches);
+        if (list == null) return false;
+        newTag.setTag("mDualInputHatches", list);
+        count += list.tagCount();
+
         // Output hatch config currently cannot be copied, so we omit this part for now
-        // TODO this doesn't work for now
-        // newTag.setTag("mDualInputHatches", saveToDataStick(player, controller.mDualInputHatches));
+
         dataOrb.setTagCompound(newTag);
         Behaviour_DataOrb.setDataTitle(dataOrb, "Multiblock Hatch Configuration");
         Behaviour_DataOrb.setDataName(dataOrb, String.format("%s configuration saved", count));
@@ -264,32 +278,52 @@ public class GT_Util {
             return false;
         }
         NBTTagCompound tag = dataOrb.getTagCompound();
-        if (!checkCanLoadConfigurationFromDataStick(
+        if (checkCanLoadConfigurationFromDataStick(
             tag.getTagList("mInputBusses", Constants.NBT.TAG_COMPOUND),
             player,
-            controller.mInputBusses)
-            || !checkCanLoadConfigurationFromDataStick(
-                tag.getTagList("mInputHatches", Constants.NBT.TAG_COMPOUND),
+            controller.mInputBusses)) {
+            if (!loadConfigurationFromDataStick(
+                tag.getTagList("mInputBusses", Constants.NBT.TAG_COMPOUND),
                 player,
-                controller.mInputHatches)
-            || !checkCanLoadConfigurationFromDataStick(
-                tag.getTagList("mOutputBusses", Constants.NBT.TAG_COMPOUND),
-                player,
-                controller.mOutputBusses))
-            return false;
-
-        if (!loadConfigurationFromDataStick(
-            tag.getTagList("mInputBusses", Constants.NBT.TAG_COMPOUND),
-            player,
-            controller.mInputBusses)) return false;
-        if (!loadConfigurationFromDataStick(
+                controller.mInputBusses)) return false;
+        }
+        if (checkCanLoadConfigurationFromDataStick(
             tag.getTagList("mInputHatches", Constants.NBT.TAG_COMPOUND),
             player,
-            controller.mInputHatches)) return false;
-        if (!loadConfigurationFromDataStick(
+            controller.mInputHatches)) {
+            if (!loadConfigurationFromDataStick(
+                tag.getTagList("mInputHatches", Constants.NBT.TAG_COMPOUND),
+                player,
+                controller.mInputHatches)) return false;
+        }
+        if (checkCanLoadConfigurationFromDataStick(
             tag.getTagList("mOutputBusses", Constants.NBT.TAG_COMPOUND),
             player,
-            controller.mOutputBusses)) return false;
+            controller.mOutputBusses)) {
+            if (!loadConfigurationFromDataStick(
+                tag.getTagList("mOutputBusses", Constants.NBT.TAG_COMPOUND),
+                player,
+                controller.mOutputBusses)) return false;
+        }
+
+        // For Crafting Input Proxy
+
+        ArrayList<GT_MetaTileEntity_Hatch> dualInputHatches = new ArrayList<>();
+        for (IDualInputHatch dualInputHatch : controller.mDualInputHatches) {
+            if (dualInputHatch instanceof GT_MetaTileEntity_Hatch hatch) {
+                dualInputHatches.add(hatch);
+            }
+        }
+        if (checkCanLoadConfigurationFromDataStick(
+            tag.getTagList("mDualInputHatches", Constants.NBT.TAG_COMPOUND),
+            player,
+            dualInputHatches)) {
+            if (!loadConfigurationFromDataStick(
+                tag.getTagList("mDualInputHatches", Constants.NBT.TAG_COMPOUND),
+                player,
+                dualInputHatches)) return false;
+        }
+
         return true;
     }
 
