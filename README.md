@@ -1,5 +1,17 @@
 GT5-Unofficial
 ===
+## gregtech-gtnh2.6.1-patch1
+開発版でのいくつかの変更や修正を適応したGTNH2.6.1用GT5です。\
+[Release](https://github.com/Kogepan229/GT5-Unofficial/releases)からgtnh2.6.1-patch1.jarをダウンロードして、既存のgregtech-5.09.45.168.jarを置き換えてください。
+また、[TecTech](https://github.com/Kogepan229/TecTech/releases)と[Bartworks](https://github.com/Kogepan229/bartworks/releases)も同様にして置き換える必要があります。
+
+### 変更点
+- Stocking Busのクラッシュ修正(GTNewHorizons#2658)
+- ランダムにStocking Hatchの液体抽出に失敗するバグの修正(GTNewHorizons#2655)
+- Hatch類を自動設置しないようにする`gt_no_hatch`チャンネルの追加(GTNewHorizons#2881)
+- Auto-Taping Maintenance Hatchを壁共有可能にする(GTNewHorizons#2735)
+- Data Orbを使用してマシンのStocking Bus/Hatch、Crafting Input Slaveの設定をコピーできるように(GTNewHorizons#2965, GTNewHorizons#3115)
+- Circuit ImprintでCALを左クリックすることでGUIを開かずにImprintできるように(GTNewHorizons#2965)
 
 ## About
 
